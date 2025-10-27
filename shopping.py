@@ -1,5 +1,6 @@
 import csv
 import sys
+import calendar
 
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
@@ -59,7 +60,48 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    raise NotImplementedError
+    #idx to generalize more the conversions
+    integer_idx = (0, 2, 4, 11, 12, 13, 14)
+    month_idx = 10
+    visitor_idx = 15
+    weekend_idx = 16
+
+    revenue_idx = 17
+
+    file = open(filename, 'r')
+
+    print(list(calendar.month_abbr).index("Feb"))
+
+    evidence = []
+    labels = []
+
+    for line in file:
+        line_list = line.split(",")
+        for index, value in line_list:
+            if index in integer_idx:
+                evidence.append(value)
+            elif index == month_idx:
+                month_equivalent = list(calendar.month_abbr).index(value) - 1
+                evidence.append(month_equivalent)
+            elif index == visitor_idx:
+                if value == 'Returning_Visitor':
+                    evidence.append(1)
+                else:
+                    evidence.append(0)
+            elif index == weekend_idx:
+                if value == 'TRUE':
+                    evidence.append(1)
+                else:
+                    evidence.append(0)
+            elif index == revenue_idx:
+                if value == 'TRUE':
+                    labels.append(1)
+                else:
+                    labels.append(0)
+            else:
+                evidence.append(value)
+    
+    return(evidence, labels)
 
 
 def train_model(evidence, labels):
