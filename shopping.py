@@ -68,40 +68,48 @@ def load_data(filename):
 
     revenue_idx = 17
 
-    file = open(filename, 'r')
+    with open(filename, 'r') as file:
+        lines = file.readlines()
 
-    print(list(calendar.month_abbr).index("Feb"))
+    # remove the first row which is column names
+    del lines[0]
 
-    evidence = []
+    evidence_list = []
     labels = []
 
-    for line in file:
+    for line in lines:
         line_list = line.split(",")
-        for index, value in line_list:
+        evidence = []
+        for index, value in enumerate(line_list):
             if index in integer_idx:
-                evidence.append(value)
+                evidence.append(int(value))
             elif index == month_idx:
-                month_equivalent = list(calendar.month_abbr).index(value) - 1
-                evidence.append(month_equivalent)
+                # for some reason June is not in short like the rest of months in the csv
+                if value == "June":
+                    evidence.append(5)
+                else:
+                    month_equivalent = list(calendar.month_abbr).index(value) - 1
+                    evidence.append(month_equivalent)
             elif index == visitor_idx:
                 if value == 'Returning_Visitor':
                     evidence.append(1)
                 else:
                     evidence.append(0)
             elif index == weekend_idx:
-                if value == 'TRUE':
+                if "TRUE" in value:
                     evidence.append(1)
                 else:
                     evidence.append(0)
             elif index == revenue_idx:
-                if value == 'TRUE':
+                if "TRUE" in value:
                     labels.append(1)
                 else:
                     labels.append(0)
             else:
-                evidence.append(value)
+                evidence.append(float(value))
+        evidence_list.append(evidence)
     
-    return(evidence, labels)
+    return(evidence_list, labels)
 
 
 def train_model(evidence, labels):
